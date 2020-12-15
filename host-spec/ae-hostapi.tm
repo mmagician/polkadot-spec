@@ -1,8 +1,8 @@
-<TeXmacs|1.99.11>
+<TeXmacs|1.99.16>
 
 <project|host-spec.tm>
 
-<style|book>
+<style|<tuple|book|old-dots|old-lengths>>
 
 <\body>
   <appendix|Polkadot Host API><label|appendix-e>
@@ -293,8 +293,8 @@
   <subsection|<verbatim|ext_storage_next_key>>
 
   Get the next key in storage after the given one in lexicographic order
-  (Definition <reference|defn-lexicographic-ordering>). The key provided to this
-  function may or may not exist in storage.
+  (Definition <reference|defn-lexicographic-ordering>). The key provided to
+  this function may or may not exist in storage.
 
   <subsubsection|Version 1 - Prototype>
 
@@ -637,8 +637,8 @@
   <subsection|<verbatim|ext_default_child_storage_next_key>>
 
   Gets the next key in storage after the given one in lexicographic order
-  (Definition <reference|defn-lexicographic-ordering>). The key provided to this
-  function may or may not exist in storage.
+  (Definition <reference|defn-lexicographic-ordering>). The key provided to
+  this function may or may not exist in storage.
 
   <subsubsection|Version 1 - Prototype>
 
@@ -2310,21 +2310,41 @@
     <reference|defn-runtime-pointer> indicating the log message.
   </itemize>
 
+  <section|Offchain>
+
+  Interface that provides functions for offchain functionality.
+
+  <subsection|offchain_is_validator>
+
+  Determines whether the local node is a running as a validator. Even if this
+  function returns <verbatim|true>, it does not mean that any keys are
+  configured and that the validators is registered in the chain. The
+  mechanism for determining this condition is implementation specific.
+
+  <subsubsection|Version 1 - Prototype>
+
+  <verbatim|(func $offchain_is_validator (result bool))>
+
   \;
 
-  <\with|par-mode|right>
-    <qed>
-  </with>\ 
+  <strong|Arguments>:
+
+  <\itemize-dot>
+    <item><verbatim|result>: <verbatim|true> if the node is is running as a
+    validator or <verbatim|false> if otherwise.
+  </itemize-dot>
+
+  \;
 </body>
 
 <\initial>
   <\collection>
-    <associate|chapter-nr|6>
-    <associate|page-first|67>
+    <associate|chapter-nr|8>
+    <associate|page-first|97>
     <associate|page-height|auto>
     <associate|page-type|letter>
     <associate|page-width|auto>
-    <associate|section-nr|1<uninit>>
+    <associate|section-nr|1>
     <associate|subsection-nr|7>
   </collection>
 </initial>
@@ -2400,6 +2420,9 @@
     <associate|auto-158|<tuple|A.9.1|90>>
     <associate|auto-159|<tuple|A.9.1.1|90>>
     <associate|auto-16|<tuple|A.1.7.1|69>>
+    <associate|auto-160|<tuple|A.10|?>>
+    <associate|auto-161|<tuple|A.10.1|?>>
+    <associate|auto-162|<tuple|A.10.1.1|?>>
     <associate|auto-17|<tuple|A.1.8|69>>
     <associate|auto-18|<tuple|A.1.8.1|69>>
     <associate|auto-19|<tuple|A.1.9|69>>
