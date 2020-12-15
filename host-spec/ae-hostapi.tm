@@ -2323,7 +2323,7 @@
 
   <subsubsection|Version 1 - Prototype>
 
-  <verbatim|(func $offchain_is_validator (result bool))>
+  <verbatim|(func $offchain_is_validator_version_1 (result bool))>
 
   \;
 
@@ -2332,6 +2332,24 @@
   <\itemize-dot>
     <item><verbatim|result>: <verbatim|true> if the node is is running as a
     validator or <verbatim|false> if otherwise.
+  </itemize-dot>
+
+  <subsection|offchain_submit_transaction>
+
+  Submits an encoded transaction to the pool.
+
+  <subsubsection|Version 1 - Prototype>
+
+  <verbatim|(func $offchain_submit_transaction_version_1 (result Result))>
+
+  \;
+
+  <strong|Arguments>:
+
+  <\itemize-dot>
+    <item><verbatim|result>: a SCALE encoded <verbatim|Result> as defined in
+    Definition <reference|defn-result-type> yielding an empty value on both
+    success or failure. The cause of a failure is implementation specific.
   </itemize-dot>
 
   \;
@@ -2423,6 +2441,8 @@
     <associate|auto-160|<tuple|A.10|?>>
     <associate|auto-161|<tuple|A.10.1|?>>
     <associate|auto-162|<tuple|A.10.1.1|?>>
+    <associate|auto-163|<tuple|A.10.2|?>>
+    <associate|auto-164|<tuple|A.10.2.1|?>>
     <associate|auto-17|<tuple|A.1.8|69>>
     <associate|auto-18|<tuple|A.1.8.1|69>>
     <associate|auto-19|<tuple|A.1.9|69>>
