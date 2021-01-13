@@ -40,14 +40,6 @@ module!(
     }
 );
 
-impl GenesisCmd {
-    pub fn default() -> Self {
-        GenesisCmd {
-            call: CallCmd::Default {},
-        }
-    }
-}
-
 /// Generate a crypto pair from seed.
 pub fn get_from_seed<TPublic: Public>(seed: &str) -> <TPublic::Pair as Pair>::Public {
     TPublic::Pair::from_string(&format!("//{}", seed), None)

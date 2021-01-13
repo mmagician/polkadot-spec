@@ -1,5 +1,5 @@
 use super::Result;
-use crate::builder::{Builder, GenesisCmd};
+use crate::builder::genesis::gen_chain_spec_default;
 use crate::primitives::runtime::{Block, BlockId, RuntimeApi, RuntimeApiImpl};
 use crate::primitives::ChainSpec;
 use sc_client_api::in_mem::Backend;
@@ -36,7 +36,7 @@ impl ClientInMem {
         Ok(ClientInMem {
             client: new_in_mem::<_, Block, _, _>(
                 NativeExecutor::<Executor>::new(WasmExecutionMethod::Interpreted, None, 8),
-                &ChainSpec::try_from(GenesisCmd::default().run()?)?
+                &ChainSpec::try_from(gen_chain_spec_default()?)?
                     .build_storage()
                     .map_err(|_| failure::err_msg("Failed to build temporary chain-spec"))?,
                 None,
