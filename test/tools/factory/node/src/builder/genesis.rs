@@ -2,7 +2,7 @@ use crate::primitives::runtime::{
     AccountId, AuraConfig, BalancesConfig, GenesisConfig, GrandpaConfig, Signature, SudoConfig,
     SystemConfig, WASM_BINARY,
 };
-use crate::primitives::{ChainSpec, ExtrinsicSigner, SpecAccountSeed, SpecChainSpec};
+use crate::primitives::{ChainSpec, ExtrinsicSigner, SpecAccountSeed, SpecChainSpecRaw};
 use crate::Result;
 use sc_service::ChainType;
 use sp_consensus_aura::sr25519::AuthorityId as AuraId;
@@ -10,7 +10,6 @@ use sp_core::{sr25519, Pair, Public};
 use sp_finality_grandpa::AuthorityId as GrandpaId;
 use sp_runtime::traits::{IdentifyAccount, Verify};
 use std::convert::{TryFrom, TryInto};
-use structopt::StructOpt;
 
 module!(
     #[serde(rename = "genesis")]
@@ -21,13 +20,12 @@ module!(
         Default {},
         #[serde(rename = "custom")]
         Custom {
-            #[structopt(short, long)]
             accounts: Vec<SpecAccountSeed>,
         },
     }
 
     impl GenesisCmd {
-        fn run(self) -> Result<SpecChainSpec> {
+        fn run(self) -> Result<SpecChainSpecRaw> {
             match self.call {
                 CallCmd::Default {} => gen_chain_spec_default()?.try_into(),
                 CallCmd::Custom { accounts } => gen_chain_spec_with_accounts(

@@ -1,13 +1,20 @@
 use super::create_tx;
-use crate::builder::genesis::get_account_id_from_seed;
-use crate::primitives::runtime::{Balance, RuntimeCall};
-use crate::primitives::{ExtrinsicSigner, RawExtrinsic, SpecAccountSeed, SpecHash};
+use crate::builder::genesis::{get_account_id_from_seed, GenesisCmd};
+use crate::executor::ClientInMem;
+use crate::primitives::runtime::{Balance, BlockId, RuntimeCall};
+use crate::primitives::{
+    ExtrinsicSigner, RawExtrinsic, SpecAccountSeed, SpecChainSpec, SpecChainSpecRaw,
+    SpecGenesisSource, SpecHash,
+};
 use crate::Result;
 use pallet_balances::Call as BalancesCall;
+use sc_client_api::BlockBackend;
 use sp_core::crypto::Pair;
+use sp_core::H256;
 use std::convert::{TryFrom, TryInto};
+use std::fs;
+use std::path::Path;
 use std::str::FromStr;
-use structopt::StructOpt;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct RawPrivateKey(Vec<u8>);
@@ -30,6 +37,20 @@ impl FromStr for RawPrivateKey {
     }
 }
 
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+enum ExtraSigned {
+    ManualParams(ManualParams),
+    FromChainSpec(SpecChainSpec),
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+struct ManualParams {
+    spec_version: u32,
+    transaction_version: u32,
+    genesis_hash: SpecHash,
+}
+
 module!(
     #[serde(rename = "pallet_balances")]
     struct PalletBalancesCmd;
@@ -37,20 +58,11 @@ module!(
     enum CallCmd {
         #[serde(rename = "transfer")]
         Transfer {
-            #[structopt(long)]
             from: SpecAccountSeed,
-            #[structopt(long)]
             to: SpecAccountSeed,
-            #[structopt(long)]
             balance: u64,
-            #[structopt(long)]
             nonce: u32,
-            #[structopt(long)]
-            spec_version: u32,
-            #[structopt(long)]
-            transaction_version: u32,
-            #[structopt(long)]
-            genesis_hash: SpecHash,
+            extra_signed: ExtraSigned,
         },
     }
 
@@ -62,10 +74,44 @@ module!(
                     to,
                     balance,
                     nonce,
-                    spec_version,
-                    transaction_version,
-                    genesis_hash,
+                    extra_signed,
                 } => {
+                    let (spec_version, transaction_version, genesis_hash): (_, _, H256) = match extra_signed {
+                        ExtraSigned::ManualParams(params) => {
+                            (
+                                params.spec_version,
+                                params.transaction_version,
+                                params.genesis_hash.try_into()?,
+                            )
+                        }
+                        ExtraSigned::FromChainSpec(cs) => {
+                            let chain_spec = match cs.chain_spec {
+                                SpecGenesisSource::FromFile(path) => {
+                                    SpecChainSpecRaw::from_str(&fs::read_to_string(&path)?)?
+                                }
+                                SpecGenesisSource::Default => {
+                                    GenesisCmd::default().run()?
+                                }
+                            };
+
+                            let client = ClientInMem::new_with_genesis(chain_spec.try_into()?)?;
+                            let client = client.raw();
+
+                            let best_block_id = BlockId::number(client.chain_info().best_number);
+                            let (spec_version, transaction_version) = {
+                                let version = client.runtime_version_at(&best_block_id).map_err(|_| failure::err_msg("failed to fetch runtime version from chain spec"))?;
+                                (version.spec_version, version.transaction_version)
+                            };
+                            let genesis_hash = client.block_hash(0).map_err(|_| failure::err_msg("failed to fetch genesis hash from chain spec"))?.ok_or(failure::err_msg("No genesis hash available in chain spec"))?;
+
+                            (
+                                spec_version,
+                                transaction_version,
+                                genesis_hash,
+                            )
+                        }
+                    };
+
                     create_tx::<ExtrinsicSigner>(
                         ExtrinsicSigner::try_from(from.clone())?,
                         RuntimeCall::Balances(BalancesCall::transfer(

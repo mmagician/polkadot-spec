@@ -1,20 +1,29 @@
 use crate::executor::ClientInMem;
-use crate::primitives::runtime::{Block, BlockId, Timestamp};
-use crate::primitives::{RawBlock, SpecBlock};
+use crate::primitives::runtime::{Block, BlockId, Header, Timestamp};
+use crate::primitives::{RawBlock, SpecBlock, SpecChainSpecRaw, SpecGenesisSource, SpecHeader};
 use crate::Result;
 use sp_api::Core;
 use sp_block_builder::BlockBuilder;
 use sp_inherents::InherentData;
 use sp_runtime::transaction_validity::TransactionValidityError;
 use std::convert::{TryFrom, TryInto};
+use std::fs;
 use std::mem::take;
-use structopt::StructOpt;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum BlockCmdResult {
-    BuildBlock(RawBlock),
+    BuildBlock(BuildBlockMeta),
     ExecuteBlocks,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BuildBlockMeta {
+    //chain_spec: SpecChainSpecRaw,
+    chain_spec: u32,
+    header: Header,
+    raw_block: RawBlock,
 }
 
 module!(
@@ -24,13 +33,11 @@ module!(
     enum CallCmd {
         #[serde(rename = "build")]
         BuildBlock {
-            #[structopt(flatten)]
             #[serde(flatten)]
             spec_block: SpecBlock,
         },
         #[serde(rename = "execute")]
         ExecuteBlocks {
-            #[structopt(short, long)]
             #[serde(flatten)]
             blocks: Vec<RawBlock>,
         },
@@ -40,15 +47,18 @@ module!(
         fn run(self) -> Result<BlockCmdResult> {
             match self.call {
                 CallCmd::BuildBlock { mut spec_block } => {
-                    // Create the block by calling the runtime APIs.
-                    let client = if let Some(chain_spec) = take(&mut spec_block.genesis) {
-                        ClientInMem::new_with_genesis(chain_spec.try_into()?)
-                    } else {
-                        ClientInMem::new()
-                    }?;
+                    let client = match spec_block.chain_spec {
+                        SpecGenesisSource::FromFile(ref path) => {
+                            let chain_spec = SpecChainSpecRaw::from_str(&fs::read_to_string(&path)?)?.try_into()?;
+                            ClientInMem::new_with_genesis(chain_spec)?
+                        }
+                        SpecGenesisSource::Default => {
+                            ClientInMem::new()?
+                        }
+                    };
 
                     // Convert into runtime types.
-                    let (at, header, extrinsics) = spec_block.prep()?;
+                    let (at, header, extrinsics) = spec_block.prep(&client)?;
 
                     let rt = client.runtime_api();
 
@@ -99,13 +109,18 @@ module!(
                         .finalize_block(&at)
                         .map_err(|_| failure::err_msg("Failed to finalize block"))?;
 
-                    Ok(BlockCmdResult::BuildBlock(
-                        Block {
-                            header: header,
-                            extrinsics: extrinsics,
-                        }
-                        .into(),
-                    ))
+                    Ok(
+                        BlockCmdResult::BuildBlock(
+                            BuildBlockMeta {
+                                chain_spec: 0,
+                                header: header.clone(),
+                                raw_block: Block {
+                                    header: header,
+                                    extrinsics: extrinsics,
+                                }.into()
+                            }
+                        )
+                    )
                 }
                 CallCmd::ExecuteBlocks { blocks } => {
                     // Create the block by calling the runtime APIs.
