@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - master
+    - spec/host/convert-svg-pdf
   pull_request:
     paths:
     - '.github/workflows/specification.yml'
