@@ -1,8 +1,8 @@
-<TeXmacs|1.99.12>
+<TeXmacs|1.99.16>
 
 <project|host-spec.tm>
 
-<style|<tuple|book|algorithmacs-style|old-dots>>
+<style|<tuple|book|algorithmacs-style|old-dots|old-lengths>>
 
 <\body>
   <chapter|State Transition><label|chap-state-transit>
@@ -241,9 +241,9 @@
   each extrinsics is simply a SCALE-encoded blob as defined in Section
   <reference|sect-scale-codec>.
 
-  <subsection|Transactions>
+  <subsection|Transactions><label|sect-transactions>
 
-  <subsubsection|Transaction Submission>
+  <subsubsection|Transaction Submission><label|sect-transaction-submission>
 
   Transaction submission is made by sending a <em|Transactions> network
   message. The structure of this message is specified in Section
@@ -257,7 +257,7 @@
   valid one, the Polkadot Host makes the transaction available for the
   consensus engine for inclusion in future blocks.
 
-  <subsection|Transaction Queue>
+  <subsection|Transaction Queue><label|sect-transaction-queue>
 
   A Block producer node should listen to all transaction
   messages<em|<index|Transaction Message>>. The transactions are submitted to
@@ -1000,7 +1000,7 @@
   <\collection>
     <associate|chapter-nr|2>
     <associate|page-first|23>
-    <associate|section-nr|2<uninit>>
+    <associate|section-nr|2>
     <associate|subsection-nr|1>
   </collection>
 </initial>
@@ -1016,9 +1016,9 @@
     <associate|auto-11|<tuple|3.2.2|23>>
     <associate|auto-12|<tuple|3.2.2.1|23>>
     <associate|auto-13|<tuple|3.2.3|24>>
-    <associate|auto-14|<tuple|3.2.3|24>>
-    <associate|auto-15|<tuple|3.2.3|24>>
-    <associate|auto-16|<tuple|3.2.3|24>>
+    <associate|auto-14|<tuple|Transaction Message|24>>
+    <associate|auto-15|<tuple|transaction pool|24>>
+    <associate|auto-16|<tuple|transaction queue|24>>
     <associate|auto-17|<tuple|3.2.3.1|25>>
     <associate|auto-18|<tuple|3.1|25>>
     <associate|auto-19|<tuple|3.3|25>>
@@ -1071,6 +1071,9 @@
     <associate|sect-runtime-return-value|<tuple|3.1.2.3|23>>
     <associate|sect-runtime-send-args-to-runtime-enteries|<tuple|3.1.2.2|22>>
     <associate|sect-state-replication|<tuple|3.3|25>>
+    <associate|sect-transaction-queue|<tuple|3.2.3|?>>
+    <associate|sect-transaction-submission|<tuple|3.2.2.1|?>>
+    <associate|sect-transactions|<tuple|3.2.2|?>>
     <associate|tabl-digest-items|<tuple|3.2|26>>
     <associate|tabl-inherent-data|<tuple|3.1|25>>
     <associate|table-changes-trie-key-types|<tuple|3.3|29>>
