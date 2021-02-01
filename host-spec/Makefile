@@ -24,13 +24,13 @@ temp: $(GENERATED)
 
 
 figures/c08-message_queue_chain.eps: figures/c08-message_queue_chain.svg
-	inkscape $< --export-eps $@
+	inkscape $< --export-eps $@ || inkscape $< --export-filename $@
 
 figures/c08-overview.eps: figures/c08-overview.svg
-	inkscape $< --export-eps $@
+	inkscape $< --export-eps $@ || inkscape $< --export-filename $@
 
 figures/c08-xcmp_overview.eps: figures/c08-xcmp_overview.svg
-	inkscape $< --export-eps $@
+	inkscape $< --export-eps $@ || inkscape $< --export-filename $@
 
 
 figures/c07-overview.eps: figures/c07-overview.puml
